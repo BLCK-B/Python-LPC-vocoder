@@ -1,3 +1,4 @@
+import threading
 import time
 
 import numpy as np
@@ -7,21 +8,28 @@ import sounddevice as sd
 from LPCfun import LPCfun
 from myFilterIIR import myFilterIIR
 
+
+def play_audio(output, fsVoice):
+    sd.play(output, fsVoice, blocking=True)
+
+
 input_path = 'audio/anthr.wav'
-inputc_path = 'audio/offender.wav'
+inputc_path = 'audio/anthr.wav'
 
 voiceAudio, fsVoice = librosa.load(input_path)
 carrierAudio, fsCarrier = librosa.load(inputc_path)
+
 # match sample rate
 if fsVoice != fsCarrier:
     carrierAudio = librosa.resample(carrierAudio, fsCarrier, fsVoice)
 # mono
-# missing
+voiceAudio = librosa.to_mono(voiceAudio)
+carrierAudio = librosa.to_mono(carrierAudio)
 
-p = 100
+p = 150
 
 windowSize = 6000
-overlap = 0.5
+overlap = 0
 overlapSize = int(windowSize * overlap)
 hopSize = windowSize - overlapSize
 windowCount = int(np.floor((len(voiceAudio) - overlapSize) / hopSize))
@@ -29,29 +37,26 @@ windowCount = int(np.floor((len(voiceAudio) - overlapSize) / hopSize))
 hann = np.hanning(windowSize)
 
 for i in range(windowCount):
+    print(i)
     startIndex = i * hopSize
     endIndex = startIndex + windowSize
     inp = voiceAudio[startIndex:endIndex]
     inpc = carrierAudio[startIndex:endIndex]
-
+    # carrier LPC
     carrier = np.zeros((len(inp),))
-
-    _, e = LPCfun(inpc, 100)
-    carrier[1:] = e
-
-    # get LPC coeffs and error variance
+    _, e = LPCfun(inpc, 50)
+    carrier[1:len(inpc)] = e
+    # voice LPC
     inp = hann * inp
-    LPC, G = LPCfun(inp, p)
-    LPC = -LPC[1:]
-    LPC = LPC.T
+    LPC, _ = LPCfun(inp, p)
 
     # filter
-    # missing sqrt of error variance
-    output = hann / myFilterIIR(LPC, carrier)
+    output = hann * myFilterIIR(LPC, carrier)
     # normalize
     output = 0.9 * output / np.max(np.abs(output))
 
-    sd.play(output, fsVoice)
-    # wait for the duration of the output minus the duration of the overlap
-    pauseDuration = len(output) / fsVoice - overlapSize / fsVoice
-    time.sleep(pauseDuration)
+    audio_thread = threading.Thread(target=play_audio, args=(output, fsVoice))
+    audio_thread.start()
+
+    # pauseDuration = len(output) / fsVoice - overlapSize / fsVoice
+    # time.sleep(pauseDuration)

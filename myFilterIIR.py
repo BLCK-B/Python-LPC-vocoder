@@ -6,9 +6,9 @@ def myFilterIIR(coeff, x):
 
     for n in range(len(x)):
         y[n] = x[n]
-        for k in range(2, len(coeff)):
-            if n - k + 2 > 0:
-                y[n] -= coeff[k] * y[n - k + 1]
+        for k in range(1, len(coeff)):
+            if n - k + 1 > 0:
+                y[n] -= coeff[k] * y[n - k]
 
         y[n] /= coeff[0]
 
