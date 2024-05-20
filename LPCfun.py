@@ -1,10 +1,12 @@
 import numpy as np
 
+from FFTautocorr import FFTautocorr
 from autocorr import autocorr
 
 
 def LPCfun(inp, p):
-    R = autocorr(inp, p)
+    # R = autocorr(inp, p)
+    R = FFTautocorr(inp)
     R[0] = 1
 
     a = np.eye(p + 1, p + 1)

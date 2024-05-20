@@ -1,13 +1,15 @@
 import threading
+import time
+
 import librosa
 import numpy as np
 import simpleaudio as sa
-
 from LPCfun import LPCfun
 from myFilterIIR import myFilterIIR
+from myFFTfilterIIR import myFFTfilterIIR
 
 input_path = 'audio/anthr.wav'
-inputc_path = 'audio/mid.wav'
+inputc_path = 'audio/obl.wav'
 
 
 def play_audio(data, sample_rate):
@@ -25,8 +27,6 @@ carrierAudio, fsCarrier = librosa.load(inputc_path)
 if fsVoice != fsCarrier:
     carrierAudio = librosa.resample(carrierAudio, fsCarrier, fsVoice)
 
-p = 30
-
 windowSize = 6000
 overlap = 0.5
 overlapSize = int(windowSize * overlap)
@@ -34,6 +34,7 @@ hopSize = windowSize - overlapSize
 windowCount = int(np.floor((len(voiceAudio) - overlapSize) / hopSize))
 
 hann = np.hanning(windowSize)
+carrier = np.zeros(windowSize,)
 
 for i in range(windowCount):
     # print(i)
@@ -41,16 +42,17 @@ for i in range(windowCount):
     endIndex = startIndex + windowSize
     inp = voiceAudio[startIndex:endIndex]
     inpc = carrierAudio[startIndex:endIndex]
+
     # carrier LPC
-    carrier = np.zeros((len(inp),))
-    _, e = LPCfun(inpc, 5)
+    _, e = LPCfun(inpc, 20)
     carrier[1:len(inpc)] = e
     # voice LPC
     inp = hann * inp
-    LPC, _ = LPCfun(inp, p)
+    LPC, _ = LPCfun(inp, 55)
 
     # filter
-    output = hann * myFilterIIR(LPC, carrier)
+    # output = hann * myFilterIIR(LPC, carrier)
+    output = hann * myFFTfilterIIR(LPC, carrier)
     # normalize
     output = 0.9 * output / np.max(np.abs(output))
 
