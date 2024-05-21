@@ -40,7 +40,7 @@ def LPCfunOptimized(inp, p, errors):
 
     e = np.zeros(len(inp) - 1)
 
-    # start_time = time.time()
+    start_time = time.time()
     if errors:
         for n in range(1, len(inp)):
             result = 0
@@ -48,6 +48,6 @@ def LPCfunOptimized(inp, p, errors):
                 result += LPC[i] * inp[n - i]
             e[n - 1] = result
 
-    # print((time.time() - start_time) * 1000)
+    print((time.time() - start_time) * 1000)
 
     return LPC, e
