@@ -1,10 +1,12 @@
+import time
+
 import numpy as np
-
 from FFTautocorr import FFTautocorr
-from autocorr import autocorr
 
 
-def LPCfun(inp, p):
+def LPCfunOptimized(inp, p, errors):
+    # R = autocorr(inp, p)
+
     R = FFTautocorr(inp)
     R[0] = 1
 
@@ -22,8 +24,7 @@ def LPCfun(inp, p):
         for j in range(i + 1):
             sum_ += a[i, j] * R[j + 1]
 
-        k[i] = -sum_ / E[i - 1]
-        a[i + 1, 0] = k[i]
+        a[i + 1, 0] = k[i] = -sum_ / E[i - 1]
 
         for j in range(1, i + 1):
             a[i + 1, j] = a[i, j - 1] + k[i] * a[i, i - j]
@@ -38,10 +39,15 @@ def LPCfun(inp, p):
     LPC = -LPC
 
     e = np.zeros(len(inp) - 1)
-    for n in range(1, len(inp)):
-        result = 0
-        for i in range(0, p):
-            result += LPC[i] * inp[n - i]
-        e[n - 1] = result
+
+    # start_time = time.time()
+    if errors:
+        for n in range(1, len(inp)):
+            result = 0
+            for i in range(0, p):
+                result += LPC[i] * inp[n - i]
+            e[n - 1] = result
+
+    # print((time.time() - start_time) * 1000)
 
     return LPC, e
