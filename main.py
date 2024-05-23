@@ -1,6 +1,5 @@
 import threading
 import time
-
 import librosa
 import numpy as np
 import simpleaudio as sa
@@ -20,15 +19,16 @@ def play_audio(data, sample_rate):
 
 
 input_path = 'audio/anthr.wav'
-inputc_path = 'audio/obl.wav'
+inputc_path = 'audio/mix.wav'
 
 voiceAudio, fsVoice = librosa.load(input_path)
 carrierAudio, fsCarrier = librosa.load(inputc_path)
+print("sample rate: ", fsVoice)
 # match sample rate
 if fsVoice != fsCarrier:
     carrierAudio = librosa.resample(carrierAudio, fsCarrier, fsVoice)
 
-windowSize = 6000
+windowSize = 4500
 overlap = 0.5
 overlapSize = int(windowSize * overlap)
 hopSize = windowSize - overlapSize
@@ -49,11 +49,11 @@ for i in range(windowCount):
     # voice LPC
     inp = hann * inp
     # LPC, _ = LPCfun(inp, 25)
-    LPC, _ = LPCfunOptimized(inp, 150, False)
+    LPC, _ = LPCfunOptimized(inp, 80, False)
 
     # carrier LPC
     # _, e = LPCfun(inpc, 45)
-    _, e = LPCfunOptimized(inpc, 45, True)
+    _, e = LPCfunOptimized(inpc, 70, True)
     carrier[1:len(inpc)] = e
 
     # filter

@@ -1,6 +1,7 @@
 import time
 
 import numpy as np
+from scipy import signal
 from FFTautocorr import FFTautocorr
 
 
@@ -39,15 +40,11 @@ def LPCfunOptimized(inp, p, errors):
     LPC = -LPC
 
     e = np.zeros(len(inp) - 1)
-
-    start_time = time.time()
     if errors:
-        for n in range(1, len(inp)):
-            result = 0
-            for i in range(0, p):
-                result += LPC[i] * inp[n - i]
-            e[n - 1] = result
-
-    print((time.time() - start_time) * 1000)
+        e = signal.fftconvolve(inp, LPC, mode='same')
+        e = e[1:len(inp)]
 
     return LPC, e
+
+    # start_time = time.time()
+    # print((time.time() - start_time) * 1000)
