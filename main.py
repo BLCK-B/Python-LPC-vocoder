@@ -22,12 +22,12 @@ def play_stereo(data, sample_rate):
     play_obj.wait_done()
 
 
-def process_channel(inp, inpc, hannw, p):
+def process_channel(inp, inpc, hannw, order):
     # voice LPC
     inp = hannw * inp
-    LPC, _ = LPCfunOptimized(inp, p, False)
+    LPC, _ = LPCfunOptimized(inp, order, False)
     # carrier LPC
-    _, e = LPCfunOptimized(inpc, p, True)
+    _, e = LPCfunOptimized(inpc, order, True)
     # filter
     outputCh = hannw[1:] * myFFTfilterIIR(LPC, e)
     # normalize
@@ -35,14 +35,17 @@ def process_channel(inp, inpc, hannw, p):
     return outputCh
 
 
-input_path = 'audio/anthr.wav'
-inputc_path = 'audio/test4.wav'
+input_path = 'audio/bikes.wav'
+inputc_path = 'audio/ominous.wav'
 
 sampleRate = None
-p = 75
+noiseGate = True
+p = 100
+carrierMono = False
+voiceMono = True
 
-voiceAudio, fsVoice = librosa.load(input_path, mono=False, sr=sampleRate)
-carrierAudio, _ = librosa.load(inputc_path, mono=False, sr=fsVoice)
+voiceAudio, fsVoice = librosa.load(input_path, mono=voiceMono, sr=sampleRate)
+carrierAudio, _ = librosa.load(inputc_path, mono=carrierMono, sr=fsVoice)
 
 if sampleRate is None:
     sampleRate = fsVoice
@@ -59,19 +62,35 @@ output = np.zeros((windowSize, 2))
 windowTime = windowSize / fsVoice - overlapSize / fsVoice
 
 count = 0
+threshold = 0
+
 for i in range(10000):
     startTime = time.time()
 
     startIndex = i * hopSize
     endIndex = startIndex + windowSize
 
-    inpL = voiceAudio[0, startIndex:endIndex]
-    inpR = voiceAudio[1, startIndex:endIndex]
-    inpcL = carrierAudio[0, startIndex:endIndex]
-    inpcR = carrierAudio[1, startIndex:endIndex]
+    if not voiceMono:
+        inpL = voiceAudio[0, startIndex:endIndex]
+        inpR = voiceAudio[1, startIndex:endIndex]
+    else:
+        inpL = inpR = voiceAudio[startIndex:endIndex]
+
+    if noiseGate:
+        maxA = np.max(np.abs(inpL))
+        threshold = maxA if maxA > threshold else threshold
+        inpL = np.where(np.abs(inpL) >= threshold * 0.005, inpL, 0.0001)
+        inpR = np.where(np.abs(inpR) >= threshold * 0.005, inpR, 0.0001)
+
+    if not carrierMono:
+        inpcL = carrierAudio[0, startIndex:endIndex]
+        inpcR = carrierAudio[1, startIndex:endIndex]
+    else:
+        inpcL = inpcR = carrierAudio[startIndex:endIndex]
 
     outputL = process_channel(inpL, inpcL, hann, p)
     outputR = process_channel(inpR, inpcR, hann, p)
+
     output = np.vstack((outputL, outputR))
 
     t1 = threading.Thread(target=play_stereo, args=(output, fsVoice))
