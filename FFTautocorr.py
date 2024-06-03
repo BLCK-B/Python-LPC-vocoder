@@ -3,9 +3,9 @@ from scipy.fftpack import fft, ifft
 
 
 def FFTautocorr(x):
-    xp = (x - np.average(x)) / np.std(x)
-    f = fft(xp)
-    p = np.absolute(f) ** 2
-    pi = ifft(p)
-    result_length = int(len(xp) / 2)
-    return np.real(pi)[:result_length] / len(xp)
+    normalised = (x - np.average(x)) / np.std(x)
+    fftRes = fft(normalised)
+    powerSpDen = np.absolute(fftRes) ** 2
+    pi = ifft(powerSpDen)
+    result_length = int(len(normalised) / 2)
+    return np.real(pi)[:result_length] / len(normalised)

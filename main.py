@@ -35,14 +35,14 @@ def process_channel(inp, inpc, hannw, order):
     return outputCh
 
 
-input_path = 'audio/bikes.wav'
-inputc_path = 'audio/ominous.wav'
+input_path = 'audio/bikeslong.wav'
+inputc_path = 'audio/synth.wav'
 
 sampleRate = None
-noiseGate = True
+noiseGate = False
 p = 100
 carrierMono = False
-voiceMono = True
+voiceMono = False
 
 voiceAudio, fsVoice = librosa.load(input_path, mono=voiceMono, sr=sampleRate)
 carrierAudio, _ = librosa.load(inputc_path, mono=carrierMono, sr=fsVoice)
