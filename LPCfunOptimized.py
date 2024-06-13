@@ -37,12 +37,11 @@ def LPCfunOptimized(inp, p, errors):
         LPC[x] = a[p, p - x]
 
     LPC[0] = 1.0
-    LPC = -LPC
 
-    e = np.zeros(len(inp) - 1)
+    e = np.zeros(len(inp))
+
     if errors:
         e = signal.fftconvolve(inp, LPC, mode='same')
-        e = e[1:len(inp)]
 
     return LPC, e
 
