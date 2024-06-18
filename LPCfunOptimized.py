@@ -15,8 +15,7 @@ def LPCfunOptimized(inp, p, errors):
     k = np.zeros((p,))
     E = np.zeros((p,))
 
-    k[0] = -R[1] / R[0]
-    a[1, 0] = k[0]
+    a[1, 0] = k[0] = -R[1] / R[0]
     E[0] = (1 - k[0] ** 2) * R[0]
 
     # iterations for i > 1
