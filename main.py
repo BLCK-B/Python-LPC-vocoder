@@ -28,9 +28,9 @@ def process_channel(inp, inpc, hannw, order):
     # voice LPC
     inp = hannw * inp
     LPC, _ = LPCfunOptimized(inp, order, False)
+
     # carrier residuals
     _, e = LPCfunOptimized(inpc, order, True)
-
     # filter
     outputCh = hannw * myFFTfilterIIR(LPC, e)
     # normalize

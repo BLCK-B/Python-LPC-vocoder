@@ -5,8 +5,7 @@ from scipy.fft import fft, ifft
 def myFFTfilterIIR(coeff, x):
     # zero pad coeff to match x
     coeff = np.pad(coeff, (0, len(x) - len(coeff)), mode='constant')
-    X = fft(x)
-    H = fft(coeff)
-    Y = X / H
-    y = ifft(Y)
-    return np.real(y)
+    fftInp = fft(x)
+    fftCoeff = fft(coeff)
+    filtered = fftInp / fftCoeff
+    return np.real(ifft(filtered))
