@@ -7,6 +7,7 @@ import numpy as np
 import simpleaudio as sa
 from scipy.fft import fft
 
+from Formants import Formants
 from LPCfunOptimized import LPCfunOptimized
 from myFFTfilterIIR import myFFTfilterIIR
 
@@ -89,8 +90,12 @@ for i in range(10000):
     #     input_buffer.append(rnd)
     # inpcL = inpcR = input_buffer
 
-    outputL = process_channel(inpL, inpcL, hann, p)
-    outputR = process_channel(inpR, inpcR, hann, p)
+    # outputL = process_channel(inpL, inpcL, hann, p)
+    # outputR = process_channel(inpR, inpcR, hann, p)
+
+    inpL = Formants(inpL)
+    outputL = inpL
+    outputR = inpL
 
     output = np.vstack((outputL, outputR))
     t1 = threading.Thread(target=play_stereo, args=(output, fsVoice))
