@@ -7,7 +7,7 @@ import numpy as np
 import simpleaudio as sa
 from scipy.fft import fft
 
-from Formants import Formants
+from formantShift import formantShift
 from LPCfunOptimized import LPCfunOptimized
 from myFFTfilterIIR import myFFTfilterIIR
 
@@ -39,12 +39,12 @@ def process_channel(inp, inpc, hannw, order):
     return outputCh
 
 
-input_path = 'audio/bikes.wav'
+input_path = 'audio/anthr.wav'
 inputc_path = 'audio/mid.wav'
 
 sampleRate = None
 noiseGate = False
-p = 80
+p = 70
 
 voiceAudio, fsVoice = librosa.load(input_path, mono=False, sr=sampleRate)
 carrierAudio, _ = librosa.load(inputc_path, mono=False, sr=fsVoice)
@@ -90,12 +90,15 @@ for i in range(10000):
     #     input_buffer.append(rnd)
     # inpcL = inpcR = input_buffer
 
+    outputL = formantShift(inpL)
+    outputR = formantShift(inpR)
+    # outputL = process_channel(outputL, inpcL, hann, p)
+    # outputR = process_channel(outputR, inpcR, hann, p)
+
     # outputL = process_channel(inpL, inpcL, hann, p)
     # outputR = process_channel(inpR, inpcR, hann, p)
-
-    inpL = Formants(inpL)
-    outputL = inpL
-    outputR = inpL
+    # outputL = Formants(outputL)
+    # outputR = Formants(outputR)
 
     output = np.vstack((outputL, outputR))
     t1 = threading.Thread(target=play_stereo, args=(output, fsVoice))
