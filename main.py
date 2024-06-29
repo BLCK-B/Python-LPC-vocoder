@@ -39,12 +39,12 @@ def process_channel(inp, inpc, hannw, order):
     return outputCh
 
 
-input_path = 'audio/anthr.wav'
-inputc_path = 'audio/mid.wav'
+input_path = 'audio/underwater.wav'
+inputc_path = 'audio/aattttt.wav'
 
 sampleRate = None
 noiseGate = False
-p = 70
+p = 80
 
 voiceAudio, fsVoice = librosa.load(input_path, mono=False, sr=sampleRate)
 carrierAudio, _ = librosa.load(inputc_path, mono=False, sr=fsVoice)

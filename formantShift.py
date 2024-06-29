@@ -5,15 +5,16 @@ from scipy.fft import fft, ifft
 def formantShift(input_):
     # analysisHop = 150
     # analysisHop = 250
-    analysisHop = 100
+    # analysisHop = 100
+    analysisHop = 200
 
     synthesisHop = 150
     LEN = 1000
     hannWin = np.hanning(LEN)
     # init
     psi = np.zeros((LEN, 1))
-    ramp = np.floor((np.arange(LEN)) * analysisHop / synthesisHop).astype(int) + 1
     previousPhi = np.zeros((LEN, 1))
+    ramp = np.floor((np.arange(LEN)) * analysisHop / synthesisHop).astype(int) + 1
     resampledLEN = np.floor(LEN * analysisHop / synthesisHop).astype(int)
     x = 1 + (np.arange(resampledLEN)) * LEN / resampledLEN
     x = x.reshape(-1, 1).astype(int)
@@ -26,7 +27,6 @@ def formantShift(input_):
 
     endCycle = np.floor(len(input_) - max(LEN, ramp[LEN-1])).astype(int)
     for anCycle in np.arange(0, endCycle, analysisHop):
-        anCycle = anCycle.astype(int)
         grain = input_[anCycle:anCycle + LEN] * hannWin
         fftGrain = fft(grain)
         # phase information: output psi
@@ -41,9 +41,7 @@ def formantShift(input_):
         corrected = (np.abs(fftGrain).reshape(-1, 1) * np.exp(realLog[0]) * np.exp(1j * psi))
         # interpolation
         grain = (np.real(ifft(corrected.T)) * hannWin).T
-        temp = (grain[np.floor(x).astype(int) - 1]).reshape(-1, 1)
-        output[anCycle:anCycle + resampledLEN] += temp
+        output[anCycle:anCycle + resampledLEN] += (grain[np.floor(x).astype(int) - 1]).reshape(-1, 1)
 
-    output *= 0.005
     return output[:len(input_)].reshape(-1)
 
