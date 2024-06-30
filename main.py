@@ -39,7 +39,7 @@ def process_channel(inp, inpc, hannw, order):
     return outputCh
 
 
-input_path = 'audio/underwater.wav'
+input_path = 'audio/thegirl.wav'
 inputc_path = 'audio/aattttt.wav'
 
 sampleRate = None

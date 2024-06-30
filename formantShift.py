@@ -6,7 +6,7 @@ def formantShift(input_):
     # analysisHop = 150
     # analysisHop = 250
     # analysisHop = 100
-    analysisHop = 200
+    analysisHop = 300
 
     synthesisHop = 150
     LEN = 1000
@@ -36,8 +36,7 @@ def formantShift(input_):
         previousPhi = phi.reshape(-1, 1)
         # shifting: output correction factor
         f1 = np.abs(fft(input_[anCycle + ramp - 1] * hannWin) / (LEN * 0.5))
-        logarithmic = (np.log(0.00001 + f1) - np.log(0.00001 + np.abs(fftGrain))) / 2
-        realLog = ifft(logarithmic)
+        realLog = ifft(f1 - fftGrain)
         corrected = (np.abs(fftGrain).reshape(-1, 1) * np.exp(realLog[0]) * np.exp(1j * psi))
         # interpolation
         grain = (np.real(ifft(corrected.T)) * hannWin).T
