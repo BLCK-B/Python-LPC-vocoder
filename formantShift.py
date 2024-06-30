@@ -37,7 +37,7 @@ def formantShift(input_):
         # shifting: output correction factor
         f1 = np.abs(fft(input_[anCycle + ramp - 1] * hannWin) / (LEN * 0.5))
         realLog = ifft(f1 - fftGrain)
-        corrected = (np.abs(fftGrain).reshape(-1, 1) * np.exp(realLog[0]) * np.exp(1j * psi))
+        corrected = (np.abs(fftGrain).reshape(-1, 1) * np.exp(realLog[0]) * np.exp(psi * 1j))
         # interpolation
         grain = (np.real(ifft(corrected.T)) * hannWin).T
         output[anCycle:anCycle + resampledLEN] += (grain[np.floor(x).astype(int) - 1]).reshape(-1, 1)
