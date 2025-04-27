@@ -1,7 +1,6 @@
 import numpy as np
 
 from FFTautocorr import FFTautocorr
-from autocorr import autocorr
 
 
 def LPCfun(inp, p):

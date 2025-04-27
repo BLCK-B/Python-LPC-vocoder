@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def autocorr(input, modelOrder):
     windowSize = len(input)
     denominator = 0.0

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def myFilterIIR(coeff, x):
+def IIRfilter(coeff, x):
     y = np.zeros_like(x)
 
     for n in range(len(x)):

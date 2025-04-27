@@ -3,10 +3,10 @@ from scipy.fft import fft, ifft
 
 
 def formantShift(input_):
-    # analysisHop = 150
-    # analysisHop = 250
+    # choose pitch shift factor:
     # analysisHop = 100
-    analysisHop = 300
+    analysisHop = 150
+    # analysisHop = 250
 
     synthesisHop = 150
     LEN = 1000

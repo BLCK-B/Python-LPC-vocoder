@@ -1,15 +1,13 @@
 import threading
 import time
-import random
 
 import librosa
 import numpy as np
 import simpleaudio as sa
-from scipy.fft import fft
 
-from formantShift import formantShift
+from IIRfilterFFT import IIRfilterFFT
 from LPCfunOptimized import LPCfunOptimized
-from myFFTfilterIIR import myFFTfilterIIR
+from formantShift import formantShift
 
 
 def play_stereo(data, sample_rate):
@@ -33,17 +31,18 @@ def process_channel(inp, inpc, hannw, order):
     # carrier residuals
     _, e = LPCfunOptimized(inpc, order, True)
     # filter
-    outputCh = hannw * myFFTfilterIIR(LPC, e)
+    outputCh = hannw * IIRfilterFFT(LPC, e)
     # normalize
     outputCh = 0.9 * outputCh / np.max(np.abs(outputCh))
     return outputCh
 
 
-input_path = 'audio/thegirl.wav'
-inputc_path = 'audio/aattttt.wav'
+input_path = 'audio/voice.wav'
+inputc_path = 'audio/carrier.wav'
 
 sampleRate = None
 noiseGate = False
+
 p = 80
 
 voiceAudio, fsVoice = librosa.load(input_path, mono=False, sr=sampleRate)
@@ -92,27 +91,12 @@ for i in range(10000):
 
     outputL = formantShift(inpL)
     outputR = formantShift(inpR)
-    # outputL = process_channel(outputL, inpcL, hann, p)
-    # outputR = process_channel(outputR, inpcR, hann, p)
-
-    # outputL = process_channel(inpL, inpcL, hann, p)
-    # outputR = process_channel(inpR, inpcR, hann, p)
-    # outputL = Formants(outputL)
-    # outputR = Formants(outputR)
+    outputL = process_channel(outputL, inpcL, hann, p)
+    outputR = process_channel(outputR, inpcR, hann, p)
 
     output = np.vstack((outputL, outputR))
     t1 = threading.Thread(target=play_stereo, args=(output, fsVoice))
     t1.start()
-
-    # graphing.b1.extend(inp)
-    # graphing.b2.extend(output)
-    # if count == 5:
-    #     graphqueues("raw")
-    #     graphing.b1 = []
-    #     graphing.b2 = []
-    #     count = 0
-    # else:
-    #     count += 1
 
     stopTime = time.time()
     timeTaken = stopTime - startTime

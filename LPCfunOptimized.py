@@ -1,7 +1,6 @@
-import time
-
 import numpy as np
 from scipy import signal
+
 from FFTautocorr import FFTautocorr
 
 

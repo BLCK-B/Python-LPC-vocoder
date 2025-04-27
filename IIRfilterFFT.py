@@ -2,7 +2,7 @@ import numpy as np
 from scipy.fft import fft, ifft
 
 
-def myFFTfilterIIR(coeff, x):
+def IIRfilterFFT(coeff, x):
     # zero pad coeff to match x
     coeff = np.pad(coeff, (0, len(x) - len(coeff)), mode='constant')
     fftInp = fft(x)
